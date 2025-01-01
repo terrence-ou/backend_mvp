@@ -2,10 +2,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.dependencies import decode_apple_token, decode_google_token, confirm_user
-from app.schemas.users import SessionToken, EmailToken
+# from app.dependencies import decode_apple_token, decode_google_token, confirm_user
+from app.routes.user.services import (
+    decode_apple_token,
+    decode_google_token,
+    confirm_user,
+)
+from app.routes.user.schemas import SessionToken, EmailToken
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/user", tags=["user"])
 
 
 @router.post("/verify-user/apple")

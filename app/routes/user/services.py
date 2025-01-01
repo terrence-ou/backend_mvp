@@ -4,11 +4,11 @@ from fastapi import Header, HTTPException
 import jwt
 
 import random
-from app.utils.db import db
+from core.db import db
 from app.utils.names import literature_giants
 import requests
 
-from app.schemas.users import EmailToken, SessionToken
+from app.routes.user.schemas import EmailToken, SessionToken
 
 load_dotenv()
 APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID")
@@ -39,7 +39,7 @@ def decode_google_token(identity_token: str = Header(...)) -> EmailToken:
     return decoded_data
 
 
-# Helper functions
+# Helper function
 
 
 # Decode the token using the public key
@@ -72,7 +72,6 @@ def decode_token(
         audience=client_id,
         issuer=issuer,
     )
-    print(decoded_token)
 
     if not decoded_token:
         raise HTTPException(status_code=401, detail="Invalid Identity Token")
