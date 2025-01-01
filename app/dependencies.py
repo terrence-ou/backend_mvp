@@ -44,4 +44,4 @@ def decode_apple_token(identity_token: str = Header(...)) -> EmailToken:
     if not decoded_token:
         raise HTTPException(status_code=401, detail="Invalid Apple Identity Token")
 
-    return {"email": decoded_token["email"], "identity_token": identity_token}
+    return {"email": decoded_token["email"], "session_token": decoded_token["sub"]}

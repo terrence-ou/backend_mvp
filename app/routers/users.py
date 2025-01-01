@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from app.dependencies import decode_apple_token
 from app.utils.db import db
 from app.utils.names import literature_giants
-from app.schemas.users import UserBase, EmailToken
+from app.schemas.users import SessionToken, EmailToken
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -14,9 +14,9 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.post("/verify-user/apple")
 async def verify_user_apple(
     emailToken: Annotated[EmailToken, Depends(decode_apple_token)]
-) -> UserBase:
+) -> SessionToken:
     # Check if the user exists in the database
-    email, identity_token = emailToken["email"], emailToken["identity_token"]
+    email, session_token = emailToken["email"], emailToken["session_token"]
     user_ref = db.collection("users").document(emailToken["email"])
     user = user_ref.get()
     if not user.exists:
@@ -27,10 +27,9 @@ async def verify_user_apple(
                 "first_name": giant["first_name"],
                 "last_name": giant["last_name"],
                 "intro": giant["introduction"],
-                "identity_token": identity_token,
+                "session_token": session_token,
             }
         )
     else:
-        user_ref.update({"identity_token": identity_token})
-    user_data = user_ref.get().to_dict()
-    return UserBase(**user_data)
+        user_ref.update({"session_token": session_token})
+    return {"session_token": session_token}
