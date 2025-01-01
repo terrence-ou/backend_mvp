@@ -33,7 +33,7 @@ def decode_google_token(identity_token: str = Header(...)) -> EmailToken:
     decoded_data = decode_token(
         token=identity_token,
         public_url=GOOGLE_KEYS_URL,
-        issuer="accounts.google.com",
+        issuer="https://accounts.google.com",
         client_id=GOOGLE_CLIENT_ID,
     )
     return decoded_data
@@ -72,6 +72,7 @@ def decode_token(
         audience=client_id,
         issuer=issuer,
     )
+    print(decoded_token)
 
     if not decoded_token:
         raise HTTPException(status_code=401, detail="Invalid Identity Token")

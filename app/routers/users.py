@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.dependencies import decode_apple_token, confirm_user
+from app.dependencies import decode_apple_token, decode_google_token, confirm_user
 from app.schemas.users import SessionToken, EmailToken
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -19,7 +19,7 @@ async def verify_user_apple(
 
 @router.post("/verify-user/google")
 async def verify_user_google(
-    decoded_data: Annotated[EmailToken, Depends()]
+    decoded_data: Annotated[EmailToken, Depends(decode_google_token)]
 ) -> SessionToken:
     return confirm_user(
         email=decoded_data["email"], session_token=decoded_data["session_token"]
