@@ -1,5 +1,4 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends
 
 # from app.dependencies import decode_apple_token, decode_google_token, confirm_user

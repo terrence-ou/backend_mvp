@@ -1,14 +1,15 @@
-from dotenv import load_dotenv
 import os
-from fastapi import Header, HTTPException
-from google.cloud.firestore_v1.base_query import FieldFilter
-import jwt
-from typing import List
 import random
-from core.db import db
-from app.utils.names import literature_giants
+from typing import List
+from dotenv import load_dotenv
+import jwt
 import requests
 
+from fastapi import Header, HTTPException
+
+from google.cloud.firestore_v1.base_query import FieldFilter
+from core.db import db
+from app.utils.names import literature_giants
 from app.routes.user.schemas import EmailToken, SessionToken
 
 load_dotenv()
