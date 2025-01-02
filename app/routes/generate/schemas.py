@@ -1,5 +1,6 @@
 from typing import List
 from pydantic import BaseModel
+from enum import Enum
 
 
 class WordDefinition(BaseModel):
@@ -40,3 +41,8 @@ class DictionaryResponse(BaseModel):
 class UserInput(BaseModel):
     prompt: str
     prefered_language: str
+
+
+class ModeEnum(str, Enum):
+    lookup = "lookup"
+    scene = "scene"
