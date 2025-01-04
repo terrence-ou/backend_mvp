@@ -9,18 +9,19 @@ def generate_response(
 
     system_prompt = ""
     if mode == ModeEnum.scene:
-        system_prompt = scene_prediction(prefered_language)
+        system_prompt = scene_prediction()
     else:
-        system_prompt = words_loopup(prefered_language)
+        system_prompt = words_loopup()
 
     response = openai.beta.chat.completions.parse(
-        model="gpt-4o-mini",
+        model="gpt-4o-mini-2024-07-18",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
         response_format=DictionaryResponse,
     )
+
     return response.choices[0].message.parsed
 
 

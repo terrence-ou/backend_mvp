@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from enum import Enum
 
@@ -26,7 +26,7 @@ class Word(BaseModel):
     origin: WordOrigin
     pronunciation: str
     definitions: List[WordDefinition]
-    tenses: WordTenses
+    tenses: Optional[WordTenses] = None
     synonyms: List[str]
     antonyms: List[str]
     related_terms: List[str]
