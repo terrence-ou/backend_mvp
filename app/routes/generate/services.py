@@ -3,9 +3,7 @@ from core.openai import openai
 from app.routes.generate.system_prompts import words_loopup, scene_prediction
 
 
-def generate_response(
-    mode: ModeEnum, user_prompt: str, prefered_language: str
-) -> DictionaryResponse:
+def generate_response(mode: ModeEnum, user_prompt: str) -> DictionaryResponse:
 
     system_prompt = ""
     if mode == ModeEnum.scene:

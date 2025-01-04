@@ -40,7 +40,6 @@ class DictionaryResponse(BaseModel):
 
 class UserInput(BaseModel):
     prompt: str
-    prefered_language: str
 
 
 class ModeEnum(str, Enum):
