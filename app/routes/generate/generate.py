@@ -13,6 +13,7 @@ async def generate_words(
     session_token: Annotated[str, Depends(get_session_token)],
 ) -> DictionaryResponse:
     response = generate_response(ModeEnum.lookup, user_input.prompt)
+
     return response
 
 

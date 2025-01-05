@@ -1,27 +1,49 @@
-from app.routes.generate.schemas import DictionaryResponse, ModeEnum
+from app.routes.generate.schemas import (
+    DictionaryResponse,
+    WordsPrediction,
+    ModeEnum,
+    Word,
+)
+from core.db import db
 from core.openai import openai
-from app.routes.generate.system_prompts import words_loopup, scene_prediction
+import app.routes.generate.system_prompts as system_prompts
 
 
-def generate_response(mode: ModeEnum, user_prompt: str) -> DictionaryResponse:
+def generate_response(mode: ModeEnum, user_prompt: str):
+    prediction_prompt = (
+        system_prompts.predict_words
+        if mode == ModeEnum.lookup
+        else system_prompts.predict_scene
+    )
+    definiton_prompt = system_prompts.words_loopup
 
-    system_prompt = ""
-    if mode == ModeEnum.scene:
-        system_prompt = scene_prediction()
-    else:
-        system_prompt = words_loopup()
-
-    response = openai.beta.chat.completions.parse(
+    word_prediction = openai.beta.chat.completions.parse(
         model="gpt-4o-mini-2024-07-18",
         messages=[
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": prediction_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        response_format=DictionaryResponse,
+        response_format=WordsPrediction,
     )
+    # return failed message if failed in predicting scenes
+    prediction_response = word_prediction.choices[0].message.parsed
+    if prediction_response.failed:
+        return DictionaryResponse(
+            words=[],
+            failed=True,
+            failed_message=prediction_response.failed_message,
+        )
 
-    return response.choices[0].message.parsed
+    words = []
 
-
-def get_from_db():
-    pass
+    for word in prediction_response.words:
+        definiton_response = openai.beta.chat.completions.parse(
+            model="gpt-4o-mini-2024-07-18",
+            messages=[
+                {"role": "system", "content": definiton_prompt},
+                {"role": "user", "content": word},
+            ],
+            response_format=Word,
+        )
+        words.append(definiton_response.choices[0].message.parsed)
+    return DictionaryResponse(words=words, failed=False, failed_message="")

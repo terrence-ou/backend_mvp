@@ -38,6 +38,12 @@ class DictionaryResponse(BaseModel):
     failed_message: str
 
 
+class WordsPrediction(BaseModel):
+    words: List[str]
+    failed: bool
+    failed_message: str
+
+
 class UserInput(BaseModel):
     prompt: str
 
