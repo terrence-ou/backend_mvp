@@ -10,7 +10,7 @@ from fastapi import Header, HTTPException
 from google.cloud.firestore_v1.base_query import FieldFilter
 from core.db import db
 from app.utils.names import literature_giants
-from app.routes.user.schemas import EmailToken, SessionToken
+from app.routes.user.schemas import EmailToken, SessionToken, ValidationResponse
 
 load_dotenv()
 APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID")
@@ -41,10 +41,6 @@ def decode_google_token(identity_token: str = Header(...)) -> EmailToken:
     return decoded_data
 
 
-def get_session_token(session_token: str = Header(...)) -> str:
-    return session_token
-
-
 def signout_user(session_token: str) -> List[str] | None:
     query = db.collection("users").where(
         filter=FieldFilter("session_token", "==", session_token)
@@ -57,7 +53,22 @@ def signout_user(session_token: str) -> List[str] | None:
     return signed_out_users[0] if len(signed_out_users) != 0 else None
 
 
+def verify_user_session(session_token: str) -> ValidationResponse:
+    user_query = (
+        db.collection("users")
+        .where(filter=FieldFilter("session_token", "==", session_token))
+        .stream()
+    )
+    for _ in user_query:
+        return ValidationResponse(valid=True, message="Session verified")
+    return ValidationResponse(valid=False, message="Invalid session token")
+
+
 # ========== Helper functions ==========
+
+
+def get_session_token(session_token: str = Header(...)) -> str:
+    return session_token
 
 
 # Decode the token using the public key

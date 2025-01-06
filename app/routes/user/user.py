@@ -1,15 +1,15 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-# from app.dependencies import decode_apple_token, decode_google_token, confirm_user
 from app.routes.user.services import (
     decode_apple_token,
     decode_google_token,
     confirm_user,
     get_session_token,
     signout_user,
+    verify_user_session,
 )
-from app.routes.user.schemas import SessionToken, EmailToken
+from app.routes.user.schemas import SessionToken, EmailToken, ValidationResponse
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -38,3 +38,9 @@ async def signout(session_token: Annotated[str, Depends(get_session_token)]) -> 
     if not signed_out_user:
         return {"message": "No users signed out"}
     return {"message": f"Signed out users: {signed_out_user}"}
+
+
+@router.post("/verify_session")
+async def verify_session(session_token: Annotated[str, Depends(get_session_token)]):
+    validation_response = verify_user_session(session_token)
+    return validation_response

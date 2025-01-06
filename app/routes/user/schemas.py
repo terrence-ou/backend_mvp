@@ -16,3 +16,8 @@ class UserBase(BaseModel):
 
 class SessionToken(BaseModel):
     session_token: str
+
+
+class ValidationResponse(BaseModel):
+    valid: bool
+    message: str
