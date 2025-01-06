@@ -12,8 +12,7 @@ async def generate_words(
     user_input: UserInput,
     session_token: Annotated[str, Depends(get_session_token)],
 ) -> DictionaryResponse:
-    response = generate_response(ModeEnum.lookup, user_input.prompt)
-
+    response = generate_response(ModeEnum.lookup, user_input.prompt, session_token)
     return response
 
 
@@ -22,5 +21,5 @@ async def generate_words(
     user_input: UserInput,
     session_token: Annotated[str, Depends(get_session_token)],
 ) -> DictionaryResponse:
-    response = generate_response(ModeEnum.scene, user_input.prompt)
+    response = generate_response(ModeEnum.scene, user_input.prompt, session_token)
     return response

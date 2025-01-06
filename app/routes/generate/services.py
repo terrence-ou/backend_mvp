@@ -1,3 +1,5 @@
+from google.cloud.firestore_v1.base_query import FieldFilter
+
 from app.routes.generate.schemas import (
     DictionaryResponse,
     WordsPrediction,
@@ -9,7 +11,10 @@ from core.openai import openai
 import app.routes.generate.system_prompts as system_prompts
 
 
-def generate_response(mode: ModeEnum, user_prompt: str):
+def generate_response(
+    mode: ModeEnum, user_prompt: str, session_token: str
+) -> DictionaryResponse:
+    # First predict the words the user is looking for
     prediction_prompt = (
         system_prompts.predict_words
         if mode == ModeEnum.lookup
@@ -33,10 +38,16 @@ def generate_response(mode: ModeEnum, user_prompt: str):
             failed=True,
             failed_message=prediction_response.failed_message,
         )
-
+    # Then lookup or generate the words
     words = []
-
+    num_generated = 0
     for word in prediction_response.words:
+        # if the word is in the dictionary, get it from the database
+        word_ref = db.collection("dictionary").document(word)
+        if word_ref.get().exists:
+            words.append(Word(**word_ref.get().to_dict()))
+            continue
+        # Otherwise, generate the word and store it in the database
         definiton_response = openai.beta.chat.completions.parse(
             model="gpt-4o-mini-2024-07-18",
             messages=[
@@ -45,5 +56,28 @@ def generate_response(mode: ModeEnum, user_prompt: str):
             ],
             response_format=Word,
         )
-        words.append(definiton_response.choices[0].message.parsed)
+        parsed_word = definiton_response.choices[0].message.parsed
+        word_ref.set(parsed_word.model_dump())
+        words.append(parsed_word)
+        num_generated += 1
+    # update user usage
+    update_user_usage(session_token, len(words), num_generated)
     return DictionaryResponse(words=words, failed=False, failed_message="")
+
+
+# Helper functions
+def update_user_usage(
+    session_token: str, num_searched: int, num_generated: int
+) -> None:
+    user_query = (
+        db.collection("users")
+        .where(filter=FieldFilter("session_token", "==", session_token))
+        .stream()
+    )
+    for user in user_query:
+        user.reference.update(
+            {
+                "num_searched": user.to_dict().get("num_searched", 0) + num_searched,
+                "num_generated": user.to_dict().get("num_generated", 0) + num_generated,
+            }
+        )

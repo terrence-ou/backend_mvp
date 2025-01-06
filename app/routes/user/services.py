@@ -45,7 +45,7 @@ def get_session_token(session_token: str = Header(...)) -> str:
     return session_token
 
 
-def signout_user(session_token: str) -> List[str]:
+def signout_user(session_token: str) -> List[str] | None:
     query = db.collection("users").where(
         filter=FieldFilter("session_token", "==", session_token)
     )
@@ -54,7 +54,7 @@ def signout_user(session_token: str) -> List[str]:
     for user in users:
         signed_out_users.append(user.to_dict()["email"])
         user.reference.update({"session_token": None})
-    return signed_out_users
+    return signed_out_users[0] if len(signed_out_users) != 0 else None
 
 
 # Helper function

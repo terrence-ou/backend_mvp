@@ -34,7 +34,7 @@ async def verify_user_google(
 
 @router.post("/signout")
 async def signout(session_token: Annotated[str, Depends(get_session_token)]) -> None:
-    signed_out_users = signout_user(session_token)
-    if len(signed_out_users) == 0:
+    signed_out_user = signout_user(session_token)
+    if not signed_out_user:
         return {"message": "No users signed out"}
-    return {"message": f"Signed out users: {" ".join(signed_out_users)}"}
+    return {"message": f"Signed out users: {signed_out_user}"}
