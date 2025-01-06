@@ -57,7 +57,7 @@ def signout_user(session_token: str) -> List[str] | None:
     return signed_out_users[0] if len(signed_out_users) != 0 else None
 
 
-# Helper function
+# ========== Helper functions ==========
 
 
 # Decode the token using the public key

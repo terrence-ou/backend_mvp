@@ -65,7 +65,9 @@ def generate_response(
     return DictionaryResponse(words=words, failed=False, failed_message="")
 
 
-# Helper functions
+# ========== Helper functions =========
+
+
 def update_user_usage(
     session_token: str, num_searched: int, num_generated: int
 ) -> None:
